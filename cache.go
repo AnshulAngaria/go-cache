@@ -16,7 +16,7 @@ func (cache *Cache) Get(key string) (string, bool) {
 	cache.RLock()
 
 	val, ok := cache.store[key]
-	cache.Unlock()
+	cache.RUnlock()
 
 	if !ok {
 		return "", false
@@ -29,4 +29,10 @@ func (cache *Cache) Set(key, val string) {
 	defer cache.Unlock()
 
 	cache.store[key] = &Value{value: val}
+}
+
+func NewCache() *Cache {
+	return &Cache{
+		store: make(map[string]*Value),
+	}
 }
