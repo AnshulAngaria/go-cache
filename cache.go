@@ -4,24 +4,29 @@ import "sync"
 
 type Cache struct {
 	sync.RWMutex
-	store map[string]string
+	store map[string]*Value
 }
 
-func (cache *Cache) Get(key string) string {
+type Value struct {
+	sync.Mutex
+	value string
+}
+
+func (cache *Cache) Get(key string) (string, bool) {
 	cache.RLock()
-	defer cache.RUnlock()
 
 	val, ok := cache.store[key]
+	cache.Unlock()
 
 	if !ok {
-		return ""
+		return "", false
 	}
-	return val
+	return val.value, true
 }
 
 func (cache *Cache) Set(key, val string) {
 	cache.Lock()
 	defer cache.Unlock()
 
-	cache.store[key] = val
+	cache.store[key] = &Value{value: val}
 }
