@@ -30,3 +30,18 @@ func (sharded *shardedCache) Get(input string) (string, bool) {
 func (sharded *shardedCache) Set(key, value string) {
 	sharded.shard(key).Set(key, value)
 }
+
+func newShardedCache(length uint32) *shardedCache {
+	sc := &shardedCache{
+		totalShards: length,
+		caches:      make([]*Cache, length),
+	}
+
+	for i := uint32(0); i < length; i++ {
+		c := &Cache{
+			store: make(map[string]*Value),
+		}
+		sc.caches[i] = c
+	}
+	return sc
+}
